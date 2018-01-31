@@ -1,0 +1,4 @@
+{
+    "copy": "me to config.json",
+    "pushbullet_access_token": "<enter access token here>"
+}

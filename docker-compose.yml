@@ -1,0 +1,35 @@
+version: '2'
+services:
+    fetcher-sbanken:
+        build: ./sbanken
+        links:
+         - push-msg
+         - sbanken-mock
+        networks:
+         - fetcher-net
+        volumes:
+         - ./sbanken/src:/src
+         - ./data:/data
+
+    push-msg:
+        build: ./pushbullet
+        networks:
+         - fetcher-net
+        volumes:
+         - ./pushbullet/src:/src
+         - ./data:/data
+
+    sbanken-mock:
+        build: ./sbanken/mock
+        networks:
+         - fetcher-net
+        volumes:
+         - ./sbanken/mock/src:/src
+
+networks:
+    fetcher-net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+            - subnet: 10.62.0.0/16
