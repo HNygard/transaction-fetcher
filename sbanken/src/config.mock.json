@@ -1,0 +1,8 @@
+{
+    "clientId": "asdfasdf",
+    "clientSecret": "hei",
+    "customerId": "01017012345",
+    "accountNumber": "myAccountNum",
+    "serverApi": "http://sbanken-mock:8000",
+    "pushMessageService": "http://push-msg:8000/sendMessage"
+}

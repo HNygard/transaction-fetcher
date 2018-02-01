@@ -20,9 +20,17 @@ function sendPushMessage(title, contents) {
 }
 
 app.use(require('morgan')('dev'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 app.get('/', function(req, res) {
     res.send('Hello World!')
+});
+
+app.post('/sendMessage', function(req, res) {
+    console.log(req.body);
+    sendPushMessage(req.body.title, req.body.content);
+    res.send('Message sent!')
 });
 
 app.listen(8000, function() {
