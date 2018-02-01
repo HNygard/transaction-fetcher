@@ -61,7 +61,7 @@ function getTransactions($accountNumber) {
             . '  ----  ' . $transaction->text
         );
 
-        $transaction_folder = '/data/' . $accountNumber . '/' . $transaction->registrationDate->format('Y-m');
+        $transaction_folder = '/data/' . $accountNumber . '/' . $transaction->accountingDate->format('Y-m');
         if (!file_exists($transaction_folder)) {
             // Recursive create the folder
             mkdir($transaction_folder, 0777, true);
@@ -76,12 +76,12 @@ function getTransactions($accountNumber) {
         $transaction_obj->amount = $transaction->amount;
         $transaction_obj->text = $transaction->text;
         $transaction_obj->transactionType = $transaction->transactionType;
-        $transaction_obj->registrationDate = $transaction->registrationDate->format('c');
+        $transaction_obj->registrationDate = ($transaction->registrationDate != null) ? $transaction->registrationDate->format('c') : null;
         $transaction_obj->accountingDate = $transaction->accountingDate->format('c');
         $transaction_obj->interestDate = $transaction->interestDate->format('c');
 
         $transaction_file = $transaction_folder
-            . '/' . $transaction->registrationDate->format('Y-m-d')
+            . '/' . $transaction->accountingDate->format('Y-m-d')
             . ' - ' . $transaction->transactionId
             . ' - ' . $transaction->amount . ' kr'
             . '.json';
@@ -123,7 +123,7 @@ while (true) {
         getTransactions($config->accountNumber);
     }
     catch (Exception $e) {
-        logInfo('!!!!!!!!!!! EXECEPTION WHILE GETTING ACCOUNT FOR [' . $config->accountNumber . '] !!!!!!!!!!!');
+        logInfo('!!!!!!!!!!! EXCEPTION WHILE GETTING ACCOUNT FOR [' . $config->accountNumber . '] !!!!!!!!!!!');
         logInfo($e->getMessage());
         echo $e->getTraceAsString() . chr(10) . chr(10);
 
