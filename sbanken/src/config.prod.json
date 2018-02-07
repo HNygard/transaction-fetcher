@@ -4,5 +4,6 @@
     "customerId": "YOUR CUSTOMER ID (fødselsnummer) WITH SBANKEN",
     "accountNumber": "YOUR ACCOUNT NUMBER",
     "serverApi": "https://api.sbanken.no",
-    "pushMessageService": "http://push-msg:8000/sendMessage"
+    "pushMessageService": "http://push-msg:8000/sendMessage",
+    "fetchIntervalInSeconds": 10
 }

@@ -14,6 +14,7 @@ class Config {
     var $accountNumber;
     var $serverApi;
     var $pushMessageService;
+    var $fetchIntervalInSeconds;
 }
 
 $configFile = 'config.json';
@@ -133,7 +134,7 @@ while (true) {
             $client->authorize();
         }
     }
-    sleep(10);
+    sleep($config->fetchIntervalInSeconds);
 }
 
 function notifyNewTransaction($transaction) {
