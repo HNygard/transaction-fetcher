@@ -7,6 +7,14 @@ function logInfo($string) {
     echo date('Y-m-d H:i:s') . ' -- ' . $i . ' -- ' . $string . chr(10);
 }
 
+function str_replace_with_x($string) {
+    $str = '';
+    for($i = 0; $i < strlen($string); $i++) {
+        $str .= 'x';
+    }
+    return $str;
+}
+
 class Config {
     var $clientId;
     var $clientSecret;
@@ -32,10 +40,10 @@ if (!file_exists(__DIR__ . '/' . $configFile)) {
 $config = json_decode(file_get_contents(__DIR__ . '/' . $configFile));
 
 logInfo('------ SBANKEN FETCHER ------');
-logInfo('clientId ....... : ' . $config->clientId);
-logInfo('customerId ..... : ' . $config->customerId);
-logInfo('accountNumber .. : ' . $config->accountNumber);
-logInfo('serverApi ...... : ' . $config->serverApi);
+logInfo('clientId ........ : ' . str_replace_with_x($config->clientId));
+logInfo('customerId ...... : ' . str_replace_with_x($config->customerId));
+logInfo('accountNumbers .. : ' . $config->accountNumber);
+logInfo('serverApi ....... : ' . $config->serverApi);
 logInfo('----------------------------------------------------------------' . chr(10) . chr(10));
 
 $credentials = new \Pkj\Sbanken\Credentials(
