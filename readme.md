@@ -19,7 +19,8 @@ Push messages:
 
 Push-msg:
 
-- Copy pushbullet/src/config.sample.json to pushbullet/src/config.json. Enter Pushbullet API access token (created from account settings).
+- Copy pushbullet/src/config.sample.json to pushbullet/src/config.json.
+- Enter Pushbullet API access token (created from account settings).
 - npm install
 
 Mock:
@@ -32,3 +33,8 @@ Fetcher:
 # Start system using docker-compose
 
 - sudo docker-compose up
+
+# Using production config
+
+- Copy sbanken/src/config.prod.json to sbanken/src/config.json.
+- Modify sample values.

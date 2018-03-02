@@ -2,7 +2,10 @@
     "clientId": "YOUR CLIENT ID",
     "clientSecret": "YOUR CLIENT SECRET",
     "customerId": "YOUR CUSTOMER ID (fødselsnummer) WITH SBANKEN",
-    "accountNumber": "YOUR ACCOUNT NUMBER",
+    "accountNumbers": [
+        "YOUR ACCOUNT NUMBER",
+        "CAN ADD MULTIPLE ACCOUNTS"
+    ],
     "serverApi": "https://api.sbanken.no",
     "pushMessageService": "http://push-msg:8000/sendMessage",
     "fetchIntervalInSeconds": 10

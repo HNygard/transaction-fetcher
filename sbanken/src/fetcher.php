@@ -3,8 +3,11 @@ require __DIR__ . '/vendor/autoload.php';
 
 $i = 0;
 function logInfo($string) {
-    global $i;
-    echo date('Y-m-d H:i:s') . ' -- ' . $i . ' -- ' . $string . chr(10);
+    global $i, $account_number;
+    echo date('Y-m-d H:i:s')
+        . ' -- ' . $i
+        . (!empty($account_number) ? ' -- ' . $account_number : '')
+        . ' -- ' . $string . chr(10);
 }
 
 function str_replace_with_x($string) {
@@ -19,7 +22,7 @@ class Config {
     var $clientId;
     var $clientSecret;
     var $customerId;
-    var $accountNumber;
+    var $accountNumbers;
     var $serverApi;
     var $pushMessageService;
     var $fetchIntervalInSeconds;
@@ -42,7 +45,7 @@ $config = json_decode(file_get_contents(__DIR__ . '/' . $configFile));
 logInfo('------ SBANKEN FETCHER ------');
 logInfo('clientId ........ : ' . str_replace_with_x($config->clientId));
 logInfo('customerId ...... : ' . str_replace_with_x($config->customerId));
-logInfo('accountNumbers .. : ' . $config->accountNumber);
+logInfo('accountNumbers .. : ' . implode(', ', $config->accountNumbers));
 logInfo('serverApi ....... : ' . $config->serverApi);
 logInfo('----------------------------------------------------------------' . chr(10) . chr(10));
 
@@ -140,27 +143,29 @@ function getTransactions($accountNumber) {
 //print_r(getUrl('http://push-msg:8000/'));
 
 while (true) {
-    try {
-        if ($i == 0) {
-            $client->authorize();
-        }
+    foreach ($config->accountNumbers as $account_number) {
+        try {
+            if ($i == 0) {
+                $client->authorize();
+            }
 
-        $i++;
-        // TODO: expand API to check if we need to reauthorize
-        getTransactions($config->accountNumber);
-    }
-    catch (Exception $e) {
-        logInfo('!!!!!!!!!!! EXCEPTION WHILE GETTING ACCOUNT FOR [' . $config->accountNumber . '] !!!!!!!!!!!');
-        logInfo($e->getMessage());
-        echo $e->getTraceAsString() . chr(10) . chr(10);
-
-        // TODO: remove when reauthorize is implemented
-        if ($e->getMessage() == 'Api credentials has expired. Please try again.') {
-            logInfo('Sbanken API token expired. Reauthorizing...');
-            $client->authorize();
+            $i++;
+            // TODO: expand API to check if we need to reauthorize
+            getTransactions($account_number);
         }
+        catch (Exception $e) {
+            logInfo('!!!!!!!!!!! EXCEPTION WHILE GETTING ACCOUNT FOR [' . $account_number . '] !!!!!!!!!!!');
+            logInfo($e->getMessage());
+            echo $e->getTraceAsString() . chr(10) . chr(10);
+
+            // TODO: remove when reauthorize is implemented
+            if ($e->getMessage() == 'Api credentials has expired. Please try again.') {
+                logInfo('Sbanken API token expired. Reauthorizing...');
+                $client->authorize();
+            }
+        }
+        sleep($config->fetchIntervalInSeconds);
     }
-    sleep($config->fetchIntervalInSeconds);
 }
 
 function notifyNewTransaction($transaction) {
