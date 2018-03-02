@@ -18,19 +18,24 @@ app.post('/identityserver/connect/token', function(req, res) {
 var getTransactionRequests = 0;
 app.get('/bank/api/v1/Transactions/:clientId/:accountNumber', function(req, res) {
     getTransactionRequests++;
-    var numberOfTransactions = (getTransactionRequests * 0.3) + 1;
+    var numberOfTransactions = parseInt(getTransactionRequests * 0.3) + 1;
     var items = [];
     var transactionId = 1;
     for (var i = 0; i <= numberOfTransactions; i++) {
+        transactionId = transactionId + 1;
+        console.log(numberOfTransactions, transactionId, (numberOfTransactions - transactionId));
         var item = {
-            'transactionId': transactionId++,
-            'customerId': '123',
-            'accountNumber': 'myAccountNumber',
+            'transactionId': (
+                // Simulate that the bank sends 0 as transaction id
+                ((numberOfTransactions - transactionId) < 3)
+                ? 0
+                : transactionId
+            ),
             'otherAccountNumber': '',
             'amount': 100,
             'text': (
                 // Simulate that the bank sends temp description first
-                ((numberOfTransactions - transactionId) < 3)
+                ((numberOfTransactions - transactionId) < 5)
                 ? 'PURCHARSE'
                 : 'Company ASA'
             ),
