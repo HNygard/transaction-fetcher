@@ -58,10 +58,10 @@ $client->setApiServer($config->serverApi);
 
 function getTransactions($accountNumber) {
     global $client;
-    $transactionRequest = new \Pkj\Sbanken\Request\TransactionListRequest($accountNumber);
+    $transactionRequest = new \Pkj\Sbanken\Request\TransactionV2ListRequest($accountNumber);
     $transactionRequest->setStartDate(new \DateTime('-10 day'));
 
-    $transactions = $client->Transactions()->getList($transactionRequest);
+    $transactions = $client->TransactionsV2()->getList($transactionRequest);
 
     foreach ($transactions as $transaction) {
         logInfo($transaction->accountingDate->format('Y-m-d') . ' : '
@@ -79,15 +79,33 @@ function getTransactions($accountNumber) {
         // :: Prep for saving
         $transaction_obj = new stdClass();
         $transaction_obj->transactionId = $transaction->transactionId;
-        $transaction_obj->customerId = $transaction->customerId;
-        $transaction_obj->accountNumber = $transaction->accountNumber;
+        $transaction_obj->accountingDate = $transaction->accountingDate->format('c');
+        $transaction_obj->interestDate = $transaction->interestDate->format('c');
         $transaction_obj->otherAccountNumber = $transaction->otherAccountNumber;
+        $transaction_obj->otherAccountNumberSpecified = $transaction->otherAccountNumberSpecified;
         $transaction_obj->amount = $transaction->amount;
         $transaction_obj->text = $transaction->text;
         $transaction_obj->transactionType = $transaction->transactionType;
-        $transaction_obj->registrationDate = ($transaction->registrationDate != null) ? $transaction->registrationDate->format('c') : null;
-        $transaction_obj->accountingDate = $transaction->accountingDate->format('c');
-        $transaction_obj->interestDate = $transaction->interestDate->format('c');
+        $transaction_obj->transactionTypeCode = $transaction->transactionTypeCode;
+        $transaction_obj->transactionTypeText = $transaction->transactionTypeText;
+        $transaction_obj->isReservation = $transaction->isReservation;
+        $transaction_obj->reservationType = $transaction->reservationType;
+        $transaction_obj->source = $transaction->source;
+        $transaction_obj->cardDetailsSpecified = $transaction->cardDetailsSpecified;
+        if ($transaction->cardDetailsSpecified) {
+            $cardDetails = new stdClass();
+            $cardDetails->cardNumber = $transaction->cardDetails->cardNumber;
+            $cardDetails->currencyAmount = $transaction->cardDetails->currencyAmount;
+            $cardDetails->currencyRate = $transaction->cardDetails->currencyRate;
+            $cardDetails->merchantCategoryCode = $transaction->cardDetails->merchantCategoryCode;
+            $cardDetails->merchantCategoryDescription = $transaction->cardDetails->merchantCategoryDescription;
+            $cardDetails->merchantCity = $transaction->cardDetails->merchantCity;
+            $cardDetails->merchantName = $transaction->cardDetails->merchantName;
+            $cardDetails->originalCurrencyCode = $transaction->cardDetails->originalCurrencyCode;
+            $cardDetails->purchaseDate = $transaction->cardDetails->purchaseDate->format('c');
+            $cardDetails->transactionId = $transaction->cardDetails->transactionId;
+            $transaction_obj->cardDetails = $cardDetails;
+        }
 
         $transaction_file = $transaction_folder
             . '/' . $transaction->accountingDate->format('Y-m-d')
@@ -157,10 +175,29 @@ function notifyModifiedTransaction($transaction, $old_transaction) {
     global $config;
     $modified = array();
     foreach ($transaction as $field => $value) {
-        if ($value != $old_transaction->$field) {
-            $modified[$field] = new stdClass();
-            $modified[$field]->old = $old_transaction->$field;
-            $modified[$field]->new = $value;
+        if (is_object($value)) {
+            if (!isset($old_transaction->$field)) {
+                $modified[$field] = new stdClass();
+                $modified[$field]->old = null;
+                $modified[$field]->new = $value;
+            }
+            else {
+                // -> New and old value is present and is object
+                foreach ($value as $field2 => $value2) {
+                    if ($value2 != $old_transaction->$field->$field2) {
+                        $modified[$field . '_' . $field2] = new stdClass();
+                        $modified[$field . '_' . $field2]->old = $old_transaction->$field->$field2;
+                        $modified[$field . '_' . $field2]->new = $value2;
+                    }
+                }
+            }
+        }
+        else {
+            if ($value != $old_transaction->$field) {
+                $modified[$field] = new stdClass();
+                $modified[$field]->old = $old_transaction->$field;
+                $modified[$field]->new = $value;
+            }
         }
     }
 

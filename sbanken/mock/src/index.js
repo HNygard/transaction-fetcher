@@ -16,7 +16,7 @@ app.post('/identityserver/connect/token', function(req, res) {
 });
 
 var getTransactionRequests = 0;
-app.get('/bank/api/v1/Transactions/:clientId/:accountNumber', function(req, res) {
+app.get('/bank/api/v2/Transactions/:clientId/:accountNumber', function(req, res) {
     getTransactionRequests++;
     var numberOfTransactions = parseInt(getTransactionRequests * 0.3) + 1;
     var items = [];
@@ -40,11 +40,28 @@ app.get('/bank/api/v1/Transactions/:clientId/:accountNumber', function(req, res)
                 : 'Company ASA'
             ),
             'transactionType': '?',
-            'registrationDate': '2018-01-01',
             'accountingDate': '2018-01-01',
             'interestDate': '2018-01-01'
 
         };
+        if ((numberOfTransactions - transactionId) < 5) {
+            item.cardDetailsSpecified = false;
+        }
+        else {
+            item.cardDetailsSpecified = true;
+            item.cardDetails = {
+                "cardNumber": "*1234",
+                "currencyAmount": 100,
+                "currencyRate": 1,
+                "merchantCategoryCode": "5411",
+                "merchantCategoryDescription": "Dagligvarer",
+                "merchantCity": "Hello",
+                "merchantName": "Good day",
+                "originalCurrencyCode": "NOK",
+                "purchaseDate": "2018-01-01T00:00:00+01:00",
+                "transactionId": "1234567890"
+            };
+        }
         items.push(item);
     }
     res.send(JSON.stringify({
